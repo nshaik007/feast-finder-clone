@@ -5,21 +5,10 @@ import "mapbox-gl/dist/mapbox-gl.css";
 interface MapboxMapProps {
   center?: [number, number];
   onReady?: (map: mapboxgl.Map) => void;
+  token?: string | null;
 }
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-
-async function fetchToken(): Promise<string | null> {
-  try {
-    const res = await fetch(`${supabaseUrl}/functions/v1/get-mapbox-token`);
-    const data = await res.json();
-    return data.token || null;
-  } catch (e) {
-    return null;
-  }
-}
-
-const MapboxMap: React.FC<MapboxMapProps> = ({ center = [30, 15], onReady }) => {
+const MapboxMap: React.FC<MapboxMapProps> = ({ center = [30, 15], onReady, token }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -27,10 +16,8 @@ const MapboxMap: React.FC<MapboxMapProps> = ({ center = [30, 15], onReady }) => 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const token = await fetchToken();
-      if (!mounted) return;
       if (!token) {
-        setError("Mapbox token missing. Add MAPBOX_PUBLIC_TOKEN to Supabase Edge Function Secrets.");
+        setError("Mapbox token missing. Enter your Mapbox public token above.");
         return;
       }
       mapboxgl.accessToken = token;
@@ -49,7 +36,7 @@ const MapboxMap: React.FC<MapboxMapProps> = ({ center = [30, 15], onReady }) => 
       mounted = false;
       mapRef.current?.remove();
     };
-  }, [center, onReady]);
+  }, [center, onReady, token]);
 
   if (error) {
     return (
