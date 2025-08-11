@@ -2,8 +2,13 @@ import { ShoppingBag, Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Link, NavLink } from "react-router-dom";
+import { LocationSheet } from "@/components/location/LocationSheet";
+import { useLocation } from "@/context/LocationContext";
 
 const Header = () => {
+  const { address, coords } = useLocation();
+  const locationLabel = address ?? (coords ? `${coords.lat.toFixed(2)}, ${coords.lng.toFixed(2)}` : "Set location");
+
   return (
     <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -15,10 +20,12 @@ const Header = () => {
         </Link>
 
         <div className="hidden md:flex items-center gap-2">
-          <Button variant="outline" className="rounded-full">
-            <MapPin className="mr-2" />
-            Set location
-          </Button>
+          <LocationSheet>
+            <Button variant="outline" className="rounded-full">
+              <MapPin className="mr-2" />
+              {locationLabel}
+            </Button>
+          </LocationSheet>
           <Button variant="outline" className="rounded-full">
             <Search className="mr-2" />
             Search dishes
